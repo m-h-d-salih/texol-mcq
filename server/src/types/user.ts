@@ -1,8 +1,8 @@
 export interface IUser {
     _id?:string,
-    name:string,
+    fullName:string,
     email:string,
     password:string,
-    phone:number,
+    mobile:number,
     status:"student"|"employee"
 }

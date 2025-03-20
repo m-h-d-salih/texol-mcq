@@ -6,32 +6,32 @@ import { IUser } from "../types/user";
 
 export const registerUserServices = async (value: IUser) => {
 
-  const { name, email, password, phone, status } = value;
+  const { fullName, email, password, mobile, status } = value;
   const existEmail = await User.findOne({ email });
-  const existNumber = await User.findOne({ phone });
+  const existNumber = await User.findOne({ mobile });
   if (existEmail) throw new AppError("Email already registered", 400);
   if (existNumber) throw new AppError("Mobile Number already registered", 400);
   const hashedPassword = await bcrypt.hash(password, 10);
 
   const user = await User.insertOne({
-    name,
+    fullName,
     email,
     password:hashedPassword,
-    phone,
+    mobile,
     status,
   });
   return {
     _id: user._id,
     email: user.email,
-    phone,
+    mobile,
     status,
-    name:user.name
+    name:user.fullName
   };
 };
 
 export const loginUserServices = async(userData:IUser) => {
-  const {phone,password} = userData;
-  const user:IUser | null = await User.findOne({phone});
+  const {mobile,password} = userData;
+  const user:IUser | null = await User.findOne({mobile});
   if(!user) throw new AppError('Invalid Mobile Number',400);
   const validPassword = await bcrypt.compare(password,user.password);
   if(!validPassword) throw new AppError('Incorrect password', 400);

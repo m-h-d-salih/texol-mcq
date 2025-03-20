@@ -15,7 +15,8 @@ export const createQuestionService=async(data:IQuestion)=>{
     return questionCreate;
 }
 
-export const getAllQuestionService=async()=>{
-    const questions=await Question.find();
-    return {questions}
+export const getAllQuestionService=async(page:number)=>{
+    const questions=await Question.find()
+    const totalQuestions = await Question.countDocuments();
+    return {questions,totalQuestions}
 }

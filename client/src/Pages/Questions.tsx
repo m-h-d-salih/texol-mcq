@@ -6,10 +6,14 @@ import { FiLogOut } from "react-icons/fi";
 import { BiBookmark } from "react-icons/bi";
 import { IoArrowBack, IoArrowForward } from "react-icons/io5";
 import useWindowWidth from "../hooks/useWindowWidth";
+import { useQuery } from "@tanstack/react-query";
+import axiosInstance from "../axios/axiosInstance";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 type Props = {};
 
 export default function Questions({}: Props) {
+  const navigate=useNavigate();
   const symbols = [
     { id: 1, color: "text-green-600", label: "Attended" },
     { id: 2, color: "text-red-600", label: "Not Attended" },
@@ -19,20 +23,30 @@ export default function Questions({}: Props) {
   const [sidebarVisible, setSidebarVisible] = useState(true);
   const windowWidth = useWindowWidth();
   const isLargeScreen = windowWidth >= 1000; // Define breakpoint for larger screens
-
+  const [mark,setMark]=useState<any >(localStorage.getItem('mark')||0)
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(
-    "Exciting"
+    
   );
   const [currentQuestion, setCurrentQuestion] = useState(1);
-  const [totalQuestions] = useState(10);
-
-  const questions = [
-    {
-      id: 1,
-      text: 'Which of the following words is a synonym for "exhilarating"?',
-      options: ["Exciting", "Boring", "Tiresome", "Frightening", "Confusing"],
-    },
-  ];
+  // const [totalQuestions] = useState(10);
+  const [page,setPage]=useState<number >(1);
+  const [searchParams, setSearchParams] = useSearchParams();
+useEffect(()=>{
+  const pageNo=Number(searchParams.get('page')) || 0;
+  setPage(pageNo);
+},[searchParams])
+useEffect(()=>{
+  const mark=localStorage.getItem('mark') || 0;
+ 
+  setMark(mark)
+},[setMark])
+  // const questions = [
+  //   {
+  //     _id: 1,
+  //     text: 'Which of the following words is a synonym for "exhilarating"?',
+  //     options: ["Exciting", "Boring", "Tiresome", "Frightening", "Confusing"],
+  //   },
+  // ];
 
   useEffect(() => {
     if (isLargeScreen) {
@@ -41,7 +55,47 @@ export default function Questions({}: Props) {
       setSidebarVisible(false); // Hide sidebar on smaller screens
     }
   }, [isLargeScreen]);
+const {data=[],isLoading,isError}=useQuery({
+  queryKey:['questions'],
+  queryFn:async()=>{
+    const res=await axiosInstance.get(`/question`)
+    
+    return res.data?.data || []
+  }
 
+})
+console.log(page)
+const {questions=[],totalQuestions}=data;
+const handleNext=(e:Event)=>{
+  e.preventDefault();
+  if(page===9){
+    navigate(`/success`)
+  }
+ else if(page!==9){
+    if(selectedAnswer===questions[page].answer){
+      setMark((prev:any)=>Number(prev)+5);
+      // console.log(mark)
+      localStorage.setItem('mark',`${Number(mark+5)}`)
+    }
+    const newSearchParams = new URLSearchParams(searchParams);
+    newSearchParams.set("page", String(page +1 ));
+    setSearchParams(newSearchParams);
+  }
+}
+
+const handlePrev=(e:Event)=>{
+  e.preventDefault();
+  if(page!==0){
+  
+    const newSearchParams = new URLSearchParams(searchParams);
+    newSearchParams.set("page", String(page - 1));
+    setSearchParams(newSearchParams);
+  }
+}
+if(isLoading)
+  return <div>Loading</div>
+if(isError)
+  return <div>Error loading data</div>
   return (
     <div className=" bg-white flex flex-col  ">
       <div className="flex flex-1 overflow-hidden">
@@ -73,7 +127,7 @@ export default function Questions({}: Props) {
                 <button
                   key={num}
                   className={`aspect-auto py-2 rounded border 
-                  flex items-center justify-center text-lg`}
+                  flex items-center justify-center text-lg ${num===page+1?'bg-lime-100':null}`}
                 >
                   {num}
                 </button>
@@ -126,12 +180,12 @@ export default function Questions({}: Props) {
               <div
                 className="h-full bg-[#2A586F]"
                 style={{
-                  width: `${(currentQuestion / totalQuestions) * 100}%`,
+                  width: `${(page+1 / totalQuestions) * 100}%`,
                 }}
               ></div>
             </div>
             <div className="text-lg font-semibold whitespace-nowrap lg:mr-36 mr-1">
-              {currentQuestion}/{totalQuestions}
+              {page+1}/{totalQuestions}
             </div>
             <div className="flex items-center bg-[#fac166] text-yellow-800 px-3 py-1 text-md rounded-sm">
               <IoMdTime className="mr-1" />
@@ -142,13 +196,13 @@ export default function Questions({}: Props) {
           <div className="bg-gray-50 rounded-lg p-5 shadow-sm ">
             <div className="flex items-start mb-3">
               <div className="bg-[#2A586F] text-white rounded-full w-8 h-8 flex items-center justify-center mr-3">
-                {currentQuestion}
+                {page+1}
               </div>
-              <h2 className="text-lg font-medium">{questions[0].text}</h2>
+              <h2 className="text-lg font-medium">{questions[page].question}</h2>
             </div>
 
             <div className="space-y-3 bg-white p-3">
-              {questions[0].options.map((option) => (
+              {questions[page].options.map((option:any) => (
                 <div
                   key={option}
                   className="p-3 rounded-md flex items-center cursor-pointer w-60 group bg-gray-100"
@@ -178,10 +232,10 @@ export default function Questions({}: Props) {
               <BiBookmark className="text-2xl text-gray-400" />
             </button>
             <div className="flex gap-2">
-              <button className="flex items-center gap-1 px-5 py-1 rounded  text-white bg-[#2A586F]">
+              <button onClick={(e:any)=>handlePrev(e)} className="flex items-center gap-1 px-5 py-1 rounded  text-white bg-[#2A586F]">
                 <IoArrowBack className="mr-1" /> Previous
               </button>
-              <button className="flex items-center gap-1 px-3 py-1 rounded  text-white bg-[#2A586F]">
+              <button onClick={(e:any)=>handleNext(e)} className="flex items-center gap-1 px-3 py-1 rounded  text-white bg-[#2A586F]">
                 Next <IoArrowForward className="ml-1" />
               </button>
             </div>

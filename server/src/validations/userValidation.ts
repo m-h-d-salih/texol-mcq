@@ -1,14 +1,14 @@
 import Joi from "joi";
 
 export const userAuthValidation=Joi.object({
-    name: Joi.string().min(3).max(30).required().messages({
-        "string.base": "Name should be a type of text",
-        "string.empty": "Name is required",
-        "string.min": "Name should have a minimum length of {#limit}",
-        "string.max": "Name should have a maximum length of {#limit}",
-        "any.required": "Name is required",
+  fullName: Joi.string().min(3).max(30).required().messages({
+        "string.base": "fullName should be a type of text",
+        "string.empty": "fullName is required",
+        "string.min": "fullName should have a minimum length of {#limit}",
+        "string.max": "fullName should have a maximum length of {#limit}",
+        "any.required": "fullName is required",
       }),
-    phone: Joi.string()
+    mobile: Joi.string()
     .pattern(new RegExp("^((\\+91)|(91))?[6-9]\\d{9}$"))
     .messages({
       "string.base": "Phone number should be a type of text",
@@ -38,10 +38,10 @@ export const userLoginValidation=Joi.object({
     .messages({
       "string.base": "Password should be a type of text",
     }),
-    phone: Joi.string()
+    mobile: Joi.string()
     .pattern(new RegExp("^((\\+91)|(91))?[6-9]\\d{9}$"))
     .messages({
-      "string.base": "Phone number should be a type of text",
-      "string.pattern.base": "Enter a valid phone number with country code"
+      "string.base": "mobile number should be a type of text",
+      "string.pattern.base": "Enter a valid mobile number with country code"
   }),   
 });

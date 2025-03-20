@@ -1,12 +1,18 @@
+import { useMutation } from "@tanstack/react-query";
 import React, { useState } from "react";
 import { GoHome } from "react-icons/go";
-import { Link } from "react-router-dom";
+import axiosInstance from "../axios/axiosInstance";
+import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 
 type Props = {};
 
 export default function Success({}: Props) {
-    const [selectedRating, setSelectedRating] = useState<number | null>(null);
-    const [comment, setComment] = useState<string>('');
+    const [selectedRating] = useState<number | null>(null);
+    const [feedback,setFeedback]=useState<string>('')
+    const [score]=useState(localStorage.getItem('mark'))||0
+    const id=localStorage.getItem('id');
+    const navigate=useNavigate();
     const emojis = [
         { rating: 1, emoji: '😢', label: 'Very Dissatisfied' },
         { rating: 2, emoji: '😔', label: 'Dissatisfied' },
@@ -14,6 +20,31 @@ export default function Success({}: Props) {
         { rating: 4, emoji: '😊', label: 'Satisfied' },
         { rating: 5, emoji: '😁', label: 'Very Satisfied' }
       ];
+      const handleEmojiClick = (emoji: string) => {
+        setFeedback((prev) => prev + emoji); // Append emoji to existing text
+    };
+    const addFeedBack=useMutation({
+      mutationFn:async(feedback:string)=>{
+        
+        await axiosInstance.post(`/feedback/submit`,{feedback,score});
+        
+      },onSuccess:()=>{
+        toast.success(`Feedback Submited Successfully`);
+      },
+      onError:()=>{
+        toast.error(`something went wrong`);
+      }
+    })
+    const handelSubmit=()=>{
+      if(feedback.trim().length===0){
+        return
+      }
+      addFeedBack.mutate(feedback)
+    }
+    const handelHome=()=>{
+      localStorage.removeItem('mark');
+      navigate('/')
+    }
   return (
       <div className="flex flex-col justify-center items-center p-3 lg:p-0  ">
       <div className="flex flex-col justify-center items-center gap-2">
@@ -24,11 +55,11 @@ export default function Success({}: Props) {
         <p className="font-bold">
           Score &nbsp;:&emsp;
           <span className="bg-[#fac166] px-4 py-1 font-semibold  rounded-3xl">
-            46/50
+            {score}/50
           </span>
         </p>
         <div className="font-bold text-[20px] text-white bg-[#2A586F] mt-2 rounded-md px-4 py-2">
-          Your ID: 7564
+          Your ID: {id}
         </div>
       </div>
 
@@ -47,7 +78,7 @@ export default function Success({}: Props) {
         
             <button
           key={item.rating}
-          onClick={() => setSelectedRating(item.rating)}
+          onClick={() => handleEmojiClick(item.emoji)}
           className={`w-12 h-12 rounded-full flex items-center justify-center text-2xl
             ${selectedRating === item.rating 
               ? 'bg-[#2A586F] ' 
@@ -63,23 +94,24 @@ export default function Success({}: Props) {
         <textarea
           className="w-full border-[#c4c4c4] border-1 rounded-md p-4 h-24 focus:outline-none  shadow-md"
           placeholder="Add a comment"
-          value={comment}
-          onChange={(e) => setComment(e.target.value)}
+          value={feedback}
+          onChange={(e) =>  setFeedback(e.target.value)}
         />
       </div>
       
       <button
       
-        disabled={selectedRating === null}
+        disabled={feedback.length === 0}
         className={`md:w-1/3 bg-[#2A586F] lg:px-4 border px-1  py-2 rounded-md text-white font-bold text-sm
-          ${selectedRating !== null 
+          ${feedback.length !== 0 
             ? ' hover:bg-transparent hover:text-[#2A586F] border-[#2A586F] ' 
             : ' bg-[#2A586F] cursor-not-allowed'}`}
+            onClick={handelSubmit}
       >
         Submit Feedback
       </button>
     </div>
-  <Link to={"/"} className="flex items-center gap-2 my-2"><GoHome /><span>Back to home</span></Link>
+  <span onClick={handelHome} className="flex items-center gap-2 my-2"><GoHome /><span>Back to home</span></span>
     </div>
   );
 }
