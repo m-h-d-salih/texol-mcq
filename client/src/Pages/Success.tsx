@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-import React, { useState } from "react";
+import  { useState } from "react";
 import { GoHome } from "react-icons/go";
 import axiosInstance from "../axios/axiosInstance";
 import toast from "react-hot-toast";
