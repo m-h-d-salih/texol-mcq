@@ -21,7 +21,7 @@ export default function Success({}: Props) {
         { rating: 5, emoji: '😁', label: 'Very Satisfied' }
       ];
       const handleEmojiClick = (emoji: string) => {
-        setFeedback((prev) => prev + emoji); // Append emoji to existing text
+        setFeedback((prev) => prev + emoji); 
     };
     const addFeedBack=useMutation({
       mutationFn:async(feedback:string)=>{
