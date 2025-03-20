@@ -10,7 +10,7 @@ type Props = {};
 export default function Success({}: Props) {
     const [selectedRating] = useState<number | null>(null);
     const [feedback,setFeedback]=useState<string>('')
-    const [score]=useState(localStorage.getItem('mark'))||0
+    const [score]=useState(localStorage.getItem('mark')||0)
     const id=localStorage.getItem('id');
     const navigate=useNavigate();
     const emojis = [

@@ -1,14 +1,12 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { MdOutlineSpaceDashboard } from "react-icons/md";
 import { FaCircle } from "react-icons/fa";
 import { IoMdTime } from "react-icons/io";
-import { FiLogOut } from "react-icons/fi";
 import { BiBookmark } from "react-icons/bi";
 import { IoArrowBack, IoArrowForward } from "react-icons/io5";
 import useWindowWidth from "../hooks/useWindowWidth";
-import { useQuery } from "@tanstack/react-query";
-import axiosInstance from "../axios/axiosInstance";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import useQuestions from "../hooks/useQuestions";
 
 type Props = {};
 
@@ -22,13 +20,11 @@ export default function Questions({}: Props) {
 
   const [sidebarVisible, setSidebarVisible] = useState(true);
   const windowWidth = useWindowWidth();
-  const isLargeScreen = windowWidth >= 1000; // Define breakpoint for larger screens
+  const isLargeScreen = windowWidth >= 1000; 
   const [mark,setMark]=useState<any >(localStorage.getItem('mark')||0)
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(
     
   );
-  const [currentQuestion, setCurrentQuestion] = useState(1);
-  // const [totalQuestions] = useState(10);
   const [page,setPage]=useState<number >(1);
   const [searchParams, setSearchParams] = useSearchParams();
 useEffect(()=>{
@@ -40,31 +36,15 @@ useEffect(()=>{
  
   setMark(mark)
 },[setMark])
-  // const questions = [
-  //   {
-  //     _id: 1,
-  //     text: 'Which of the following words is a synonym for "exhilarating"?',
-  //     options: ["Exciting", "Boring", "Tiresome", "Frightening", "Confusing"],
-  //   },
-  // ];
 
   useEffect(() => {
     if (isLargeScreen) {
-      setSidebarVisible(true); // Always show sidebar on large screens
+      setSidebarVisible(true); 
     } else {
-      setSidebarVisible(false); // Hide sidebar on smaller screens
+      setSidebarVisible(false); 
     }
   }, [isLargeScreen]);
-const {data=[],isLoading,isError}=useQuery({
-  queryKey:['questions'],
-  queryFn:async()=>{
-    const res=await axiosInstance.get(`/question`)
-    
-    return res.data?.data || []
-  }
-
-})
-console.log(page)
+const { data=[], isLoading, isError } = useQuestions();
 const {questions=[],totalQuestions}=data;
 const handleNext=(e:Event)=>{
   e.preventDefault();
@@ -74,7 +54,6 @@ const handleNext=(e:Event)=>{
  else if(page!==9){
     if(selectedAnswer===questions[page].answer){
       setMark((prev:any)=>Number(prev)+5);
-      // console.log(mark)
       localStorage.setItem('mark',`${Number(mark+5)}`)
     }
     const newSearchParams = new URLSearchParams(searchParams);
@@ -205,7 +184,7 @@ if(isError)
               {questions[page].options.map((option:any) => (
                 <div
                   key={option}
-                  className="p-3 rounded-md flex items-center cursor-pointer w-60 group bg-gray-100"
+                  className={`p-3 rounded-md flex items-center cursor-pointer w-60 group bg-gray-100 ${selectedAnswer === option?'bg-lime-100':''} `}
                   onClick={() => setSelectedAnswer(option)}
                 >
                   <label className="flex items-center gap-2 cursor-pointer w-full  group">
@@ -215,7 +194,7 @@ if(isError)
                       value={option}
                       checked={selectedAnswer === option}
                       onChange={() => setSelectedAnswer(option)}
-                      className="hidden group-[&:checked]:bg-[#2A586F]"
+                      className="hidden group-[&:checked]:bg-[#2A586F] "
                     />
                     <div className="w-5 h-5 border-2 border-gray-400 rounded-full flex items-center justify-center group-has-[:checked]:border-[#2A586F]">
                       <div className="w-2.5 h-2.5 bg-gray-400 rounded-full group-has-[:checked]:bg-[#2A586F]"></div>

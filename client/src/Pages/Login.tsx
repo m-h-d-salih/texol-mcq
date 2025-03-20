@@ -7,6 +7,7 @@ import { useMutation } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import axiosInstance from "../axios/axiosInstance";
 import { IUser } from "./Register";
+import AuthButton from "../Components/ui/AuthButton";
 
 // Country option type
 type CountryOption = {
@@ -127,12 +128,7 @@ export default function Login() {
           <div className="text-red-500 text-sm">{formik.errors.password}</div>
         ) : null}
 
-        <button
-          type="submit"
-          className="mt-8 py-2 font-semibold text-[14px] bg-[#2A586F] text-white border-2 border-[#2A586F] hover:bg-transparent hover:text-[#2A586F] rounded-md"
-        >
-          Login
-        </button>
+      <AuthButton onClick={formik.handleSubmit} name="Login"  disabled={login.isPending} />
         <small className="text-center mt-5">
           Don't have an account? {" "}
           <Link to="/register" className="text-blue-600">
@@ -143,3 +139,4 @@ export default function Login() {
     </div>
   );
 }
+

@@ -7,6 +7,7 @@ import * as Yup from "yup";
 import axiosInstance from "../axios/axiosInstance";
 import { useMutation } from "@tanstack/react-query";
 import toast from "react-hot-toast";
+import AuthButton from "../Components/ui/AuthButton";
 
 type CountryOption = {
   value: string;
@@ -47,8 +48,9 @@ export default function Register() {
         navigate(`/login`);
       },2000)
     },
-    onError:()=>{
-      toast.error(`Something went wrong`);
+    onError:(error:any)=>{
+      const {message=`Something went wrong`}=error.response?.data;
+      toast.error(message);
     }
   })
 
@@ -58,7 +60,7 @@ export default function Register() {
         <h1 className="relative z-50">Register</h1>
         <span className="absolute left-0 bottom-1 w-full h-2 bg-[#fac166] z-0"></span>
       </div>
-
+     
       <Formik
         initialValues={{ fullName: "", email: "", mobile: "", status: "", password: "" }}
         validationSchema={validationSchema}
@@ -66,7 +68,7 @@ export default function Register() {
           register.mutate(values)
         }}
       >
-        {({ setFieldValue, values }) => (
+        {({ handleSubmit, values }) => (
           <Form className="p-4 flex flex-col shadow-lg">
             <label className="text-[18px] font-bold mt-3">Full Name</label>
             <Field type="text" name="fullName" className="p-2 outline-none border-2 rounded-md mt-2" placeholder="Enter your name" />
@@ -115,10 +117,7 @@ export default function Register() {
             <label className="text-[18px] font-bold mt-3">Password</label>
             <Field type="password" name="password" className="p-2 outline-none border-2 rounded-md mt-2" placeholder="Enter Password" />
             <ErrorMessage name="password" component="small" className="text-red-500" />
-
-            <button type="submit" className="mt-5 py-2 font-semibold text-[14px] bg-[#2A586F] text-white border-2 rounded-md">
-              Save
-            </button>
+            <AuthButton onClick={handleSubmit} name="save"  disabled={register.isPending} />
             <small className="text-center mt-3">
               Already have an account? <Link to="/login" className="text-blue-600">Login Now</Link>
             </small>

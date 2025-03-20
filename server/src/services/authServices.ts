@@ -7,9 +7,7 @@ import { IUser } from "../types/user";
 export const registerUserServices = async (value: IUser) => {
 
   const { fullName, email, password, mobile, status } = value;
-  const existEmail = await User.findOne({ email });
   const existNumber = await User.findOne({ mobile });
-  if (existEmail) throw new AppError("Email already registered", 400);
   if (existNumber) throw new AppError("Mobile Number already registered", 400);
   const hashedPassword = await bcrypt.hash(password, 10);
 
