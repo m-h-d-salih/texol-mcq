@@ -159,7 +159,7 @@ if(isError)
               <div
                 className="h-full bg-[#2A586F]"
                 style={{
-                  width: `${(page+1 / totalQuestions) * 100}%`,
+                  width: `${((page+1) / totalQuestions) * 100}%`,
                 }}
               ></div>
             </div>
