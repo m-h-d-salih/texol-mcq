@@ -30,6 +30,10 @@ export default function Success({}: Props) {
         
       },onSuccess:()=>{
         toast.success(`Feedback Submited Successfully`);
+        setTimeout(()=>{
+          localStorage.removeItem('mark')
+          navigate('/');
+        },2000)
       },
       onError:()=>{
         toast.error(`something went wrong`);
